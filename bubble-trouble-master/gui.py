@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from game import *
 from menu import *
+from search_agent import *
 from q_learning_agent import *
 
 pygame.init()
@@ -10,25 +11,62 @@ pygame.display.set_caption('Bubble Trouble')
 pygame.mouse.set_visible(True)
 screen = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
 clock = pygame.time.Clock()
+
 font = pygame.font.SysFont('monospace', 30)
 game = Game()
+game_learning = Game()
 agent = QLearningAgent()
 
-
+def start_level_learning(level):
+    game_learning.load_level(level)
+    main_menu.is_active = False
+    pygame.mouse.set_visible(False)
+    clock1 = pygame.time.Clock()
+    print('her')
+    while game_learning.is_running:
+        
+        game_learning.update()
+        draw_world()
+        #handle_game_event()
+        
+        
+        handle_game_automatically2(game_learning)
+        
+        pygame.display.update()
+        if game_learning.is_completed or game_learning.game_over or \
+                game_learning.level_completed or game_learning.is_restarted:
+            print('1')
+           # pygame.time.delay(3000)
+        if game_learning.dead_player:
+            print('2')
+          #  pygame.time.delay(1000)
+        if game_learning.is_restarted:
+            print('3')
+            game_learning.is_restarted = False
+            game_learning._start_timer()
+        clock1.tick(FPS)
+        
 def start_level(level):
+    #for i in range (100):
+       # start_level_learning(level)
+    print('finished training')
     game.load_level(level)
     main_menu.is_active = False
     pygame.mouse.set_visible(False)
+    
+    #agent = QLearningAgent()
     while game.is_running:
         game.update()
         draw_world()
         #handle_game_event()
-        agent = QLearningAgent()
-        handle_game_automatically1(game)
+        
+        
+        handle_game_automatically2(game)
         
         pygame.display.update()
         if game.is_completed or game.game_over or \
                 game.level_completed or game.is_restarted:
+           
             pygame.time.delay(3000)
         if game.dead_player:
             pygame.time.delay(1000)
@@ -80,6 +118,7 @@ main_menu = Menu(
             ('Quit', quit_game)]
     )
 )
+
 levels_available = [(str(lvl), (start_level, lvl))
                     for lvl in range(1, game.max_level_available + 1)]
 levels_available.append(('Back', back))
@@ -199,7 +238,7 @@ def handle_game_event():
         if event.type == QUIT:
             quit_game()
 
-def handle_game_auto_event(events):
+def handle_game_auto_event(events, game):
     for event in events:
       #  print(event.type)
       #  print('key ' , event.key)
@@ -306,6 +345,70 @@ def handle_game_automatically(game):
             events.append(pygame.event.Event(KEYUP, key=K_LEFT))
             events.append(pygame.event.Event(KEYDOWN, key=K_RIGHT))
     handle_game_auto_event(events)
+    
+def handle_game_automatically2(game):
+    events = []
+    
+    """    
+    events = [];
+    minBall = None
+    minDist = WINDOWWIDTH
+    player1 = game.players[0]
+  #  print("!!!! : ",len(game.balls))
+    ballsInLeftWithin75 = 0
+    ballsInRightWithin75 = 0
+    ballsWithin50 = 0
+    ballsDistance = []
+    fire = False
+    for ball in game.balls:
+       # print('y coor', ball.rect[1])
+        fire = abs(ball.rect.centerx - player1.rect.centerx) <= 50 
+        ballsDistance.append(ball.rect[0] - player1.rect[0])
+        if(minDist >  abs(ball.rect[0] - player1.rect[0])):
+            minDist = abs(ball.rect[0] - player1.rect[0])
+            minBall = ball
+            
+
+    if(minBall ==None):
+        return
+    if minDist > 30:
+        right = minBall.rect.centerx > player1.rect.centerx
+    else:
+        #print('here')
+        right = player1.moving_right
+    
+    balls = game.balls.copy()
+    nextPlayer = player1
+    """
+    action = agent.getAction(game)
+
+    if(action == None):
+        return
+    #right, fire = action
+  #  print(action)
+    move,fire = action
+    
+    
+   # print('orginal ball', minBall.rect[0], minBall.rect[1])
+   # print('next ball', nextBall.rect[0], nextBall.rect[1],)
+   # print('orginal player', player1.rect[0], player1.rect[1])
+   # print('next player', nextPlayer.rect[0], nextPlayer.rect[1],)
+   # print(action)
+    if fire == 'FIRE':
+        #events.append(pygame.event.Event(KEYUP, key=K_SPACE))
+        events.append(pygame.event.Event(KEYDOWN, key=K_SPACE))
+    if move == 'RIGHT':
+        #print('right')
+        events.append(pygame.event.Event(KEYUP, key=K_LEFT))
+        events.append(pygame.event.Event(KEYDOWN, key=K_RIGHT))
+    elif move == 'LEFT':
+        #print('left')
+        events.append(pygame.event.Event(KEYUP, key=K_RIGHT))
+        events.append(pygame.event.Event(KEYDOWN, key=K_LEFT))
+    
+
+    handle_game_auto_event(events, game)
+    
 
 def handle_game_automatically1(game):
     events = []
@@ -353,7 +456,8 @@ def handle_game_automatically1(game):
    # print('orginal player', player1.rect[0], player1.rect[1])
    # print('next player', nextPlayer.rect[0], nextPlayer.rect[1],)
    
-        
+   
+    
     
     if fire:
         #events.append(pygame.event.Event(KEYUP, key=K_SPACE))

@@ -16,3 +16,8 @@ class Weapon(pygame.sprite.Sprite):
                 self.is_active = False
             else:
                 self.rect = self.rect.move(0, -WEAPON_SPEED)
+    def getCopy(self):
+        copy_weapon = Weapon()
+        copy_weapon.rect = self.rect.copy()
+        copy_weapon.is_active = self.is_active
+        return copy_weapon

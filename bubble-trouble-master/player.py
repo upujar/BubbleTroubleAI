@@ -28,3 +28,15 @@ class Player(pygame.sprite.Sprite):
     def set_position(self, x=WINDOWWIDTH/2, y=WINDOWHEIGHT):
         self.rect.centerx, self.rect.bottom = x, y
         self.weapon.is_active = False
+
+    def getCopy(self):
+        copy_player = Player()
+        
+        copy_player.rect = self.rect.copy()
+        copy_player.weapon = self.weapon.getCopy()
+        copy_player.moving_left = self.moving_left
+        copy_player.moving_right = self.moving_right
+        copy_player.lives = self.lives
+        copy_player.is_alive = self.is_alive
+        
+        return copy_player

@@ -211,5 +211,5 @@ class Game:
         if self.is_restarted:
             self.balloons_popped = 0
             #print(self.time_left)
-        return self.time_left + self.balloons_popped * 5 + player.lives * 10
+        return self.balloons_popped 
         
